@@ -1,0 +1,552 @@
+<h1>Şeker Tüketiminin Bilişsel ve Fizyolojik Etkilere Olan Anlık Etkisi</h1>
+<p>Reaksiyon, dikkat ve nabız verileri üzerinden analiz yapan yapay zeka destekli değerlendirme sistemi</p>
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Şeker Etki Analiz Sistemi</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: #1f2937;
+      background:
+        radial-gradient(circle at top left, rgba(255,255,255,0.45), transparent 25%),
+        radial-gradient(circle at bottom right, rgba(255,255,255,0.25), transparent 20%),
+        linear-gradient(135deg, #f9a8d4 0%, #c4b5fd 35%, #93c5fd 70%, #86efac 100%);
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .wrapper {
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 22px;
+      color: white;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.18);
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+    }
+
+    .hero p {
+      margin-top: 10px;
+      font-size: 1rem;
+      opacity: 0.96;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 20px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.82);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.45);
+      box-shadow: 0 10px 30px rgba(31, 41, 55, 0.16);
+      border-radius: 24px;
+      padding: 22px;
+    }
+
+    .card h2 {
+      margin-top: 0;
+      font-size: 1.25rem;
+      color: #111827;
+    }
+
+    .section-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin: 18px 0 10px;
+      color: #4b5563;
+      text-align: left;
+    }
+
+    .inputs-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .input-box {
+      text-align: left;
+    }
+
+    .input-box label {
+      display: block;
+      font-size: 0.92rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #374151;
+    }
+
+    .input-box input {
+      width: 100%;
+      border: none;
+      outline: none;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.9);
+      box-shadow: inset 0 0 0 1px rgba(148,163,184,0.35);
+      font-size: 0.98rem;
+      color: #111827;
+    }
+
+    .input-box input:focus {
+      box-shadow: inset 0 0 0 2px #8b5cf6;
+      background: #fff;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    button {
+      border: none;
+      cursor: pointer;
+      padding: 13px 18px;
+      border-radius: 16px;
+      font-size: 0.98rem;
+      font-weight: 700;
+      transition: 0.2s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #7c3aed, #2563eb);
+      color: white;
+      box-shadow: 0 8px 18px rgba(79, 70, 229, 0.28);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      opacity: 0.97;
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.85);
+      color: #374151;
+      box-shadow: inset 0 0 0 1px rgba(148,163,184,0.35);
+    }
+
+    .result-top {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .mini-box {
+      background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(243,244,246,0.9));
+      border-radius: 18px;
+      padding: 14px;
+      text-align: center;
+      box-shadow: inset 0 0 0 1px rgba(203,213,225,0.45);
+    }
+
+    .mini-box .label {
+      font-size: 0.85rem;
+      color: #6b7280;
+      margin-bottom: 6px;
+    }
+
+    .mini-box .value {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #111827;
+    }
+
+    .yorum-karti {
+      background: linear-gradient(135deg, #fdf2f8, #eef2ff);
+      border-radius: 20px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: inset 0 0 0 1px rgba(196,181,253,0.45);
+    }
+
+    .yorum-karti h3 {
+      margin: 0 0 8px 0;
+      color: #4c1d95;
+      font-size: 1.03rem;
+    }
+
+    .yorum-karti p {
+      margin: 0;
+      line-height: 1.5;
+      color: #374151;
+      font-size: 0.97rem;
+    }
+
+    .chart-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+
+    .chart-card {
+      background: rgba(255,255,255,0.72);
+      border-radius: 20px;
+      padding: 14px;
+      box-shadow: inset 0 0 0 1px rgba(226,232,240,0.7);
+    }
+
+    .chart-card h4 {
+      margin: 0 0 10px;
+      font-size: 0.96rem;
+      color: #374151;
+      text-align: center;
+    }
+
+    .footer-note {
+      margin-top: 14px;
+      font-size: 0.85rem;
+      color: #6b7280;
+      text-align: center;
+    }
+
+    @media (max-width: 900px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .result-top {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .inputs-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero h1 {
+        font-size: 1.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="hero">
+      <h1>Şeker Etki Analiz Sistemi</h1>
+      <p>Ön test ve son test verilerini karşılaştırarak puan, yorum ve grafik oluşturan analiz ekranı</p>
+    </div>
+
+    <div class="main-grid">
+      <div class="card">
+        <h2>Veri Giriş Paneli</h2>
+
+        <div class="section-title">Reaksiyon Değerleri</div>
+        <div class="inputs-grid">
+          <div class="input-box">
+            <label for="on_r">Ön Reaksiyon (ms)</label>
+            <input id="on_r" type="number" placeholder="Örn: 320" />
+          </div>
+          <div class="input-box">
+            <label for="son_r">Son Reaksiyon (ms)</label>
+            <input id="son_r" type="number" placeholder="Örn: 280" />
+          </div>
+        </div>
+
+        <div class="section-title">Dikkat Değerleri</div>
+        <div class="inputs-grid">
+          <div class="input-box">
+            <label for="on_d">Ön Dikkat</label>
+            <input id="on_d" type="number" placeholder="Örn: 24" />
+          </div>
+          <div class="input-box">
+            <label for="son_d">Son Dikkat</label>
+            <input id="son_d" type="number" placeholder="Örn: 31" />
+          </div>
+        </div>
+
+        <div class="section-title">Nabız Değerleri</div>
+        <div class="inputs-grid">
+          <div class="input-box">
+            <label for="on_n">Ön Nabız</label>
+            <input id="on_n" type="number" placeholder="Örn: 78" />
+          </div>
+          <div class="input-box">
+            <label for="son_n">Son Nabız</label>
+            <input id="son_n" type="number" placeholder="Örn: 88" />
+          </div>
+        </div>
+
+        <div class="button-row">
+          <button class="btn-primary" onclick="hesapla()">Analiz Yap</button>
+          <button class="btn-secondary" onclick="temizle()">Temizle</button>
+        </div>
+
+        <div class="footer-note">
+          Not: Reaksiyonda düşük süre daha iyi, dikkatte yüksek skor daha iyi kabul edilir.
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Analiz Sonuçları</h2>
+
+        <div class="result-top">
+          <div class="mini-box">
+            <div class="label">Toplam Puan</div>
+            <div class="value" id="puanKutusu">-</div>
+          </div>
+          <div class="mini-box">
+            <div class="label">Etkilenme Düzeyi</div>
+            <div class="value" id="duzeyKutusu">-</div>
+          </div>
+          <div class="mini-box">
+            <div class="label">Genel Sonuç</div>
+            <div class="value" id="sonucKutusu">-</div>
+          </div>
+        </div>
+
+        <div class="yorum-karti">
+          <h3>Yorum</h3>
+          <p id="yorumAlani">Henüz analiz yapılmadı.</p>
+        </div>
+
+        <div class="chart-grid">
+          <div class="chart-card">
+            <h4>Ön Test - Son Test Karşılaştırması</h4>
+            <canvas id="genelGrafik"></canvas>
+          </div>
+
+          <div class="chart-card">
+            <h4>Değişim Miktarları</h4>
+            <canvas id="degisimGrafik"></canvas>
+          </div>
+
+          <div class="chart-card">
+            <h4>Puan Dağılımı</h4>
+            <canvas id="puanGrafik"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let genelChart, degisimChart, puanChart;
+
+    function aralikYorumu(puan) {
+      if (puan < 0) {
+        return {
+          duzey: "Çok Düşük",
+          sonuc: "Olumsuz",
+          yorum: "Verilere göre ölçüm sonrası performansta düşüş görülmüştür. Reaksiyon, dikkat ve nabız değişimleri birlikte değerlendirildiğinde şekerli içeceğin bu öğrenci üzerinde olumlu bir katkı sunmadığı düşünülmektedir."
+        };
+      } else if (puan < 10) {
+        return {
+          duzey: "Düşük",
+          sonuc: "Sınırlı",
+          yorum: "0-10 puan aralığında sistem çok düşük düzeyde bir etki göstermektedir. Öğrencide belirgin bir performans artışı görülmemiş, değişim daha çok sınırlı seviyede kalmıştır."
+        };
+      } else if (puan < 20) {
+        return {
+          duzey: "Hafif",
+          sonuc: "Kısmi",
+          yorum: "10-20 puan aralığında hafif düzeyde bir etkilenme görülmektedir. Reaksiyon ve dikkat verilerinde küçük değişimler vardır ancak sonuç henüz güçlü bir artış göstermemektedir."
+        };
+      } else if (puan < 30) {
+        return {
+          duzey: "Orta Altı",
+          sonuc: "Dengeli",
+          yorum: "20-30 puan aralığında ölçülen değerler orta altı seviyede bir etkiyi göstermektedir. Öğrencinin dikkat ve reaksiyon performansında olumlu yönde bir hareketlenme başlamıştır."
+        };
+      } else if (puan < 40) {
+        return {
+          duzey: "Orta",
+          sonuc: "Olumlu",
+          yorum: "30-40 puan aralığı, sistemin olumlu bir değişimi yakaladığını göstermektedir. Öğrenci verilerinde dikkat artışı ve reaksiyon iyileşmesi daha görünür hale gelmiştir."
+        };
+      } else if (puan < 50) {
+        return {
+          duzey: "Belirgin",
+          sonuc: "Güçlü",
+          yorum: "40-50 puan aralığında belirgin bir etkilenme vardır. Son test verileri ön test verilerine göre daha güçlü bir performans değişimi göstermektedir."
+        };
+      } else if (puan < 60) {
+        return {
+          duzey: "Yüksek",
+          sonuc: "Oldukça Güçlü",
+          yorum: "50-60 puan aralığında yüksek düzeyde bir olumlu etki ölçülmüştür. Sistem, öğrencinin ölçüm sonrası performansında dikkat çekici bir artış olduğunu göstermektedir."
+        };
+      } else if (puan < 70) {
+        return {
+          duzey: "Çok Yüksek",
+          sonuc: "Çok Güçlü",
+          yorum: "60-70 puan aralığı, öğrencide oldukça güçlü bir değişim olduğunu göstermektedir. Reaksiyon, dikkat ve nabız verileri birlikte değerlendirildiğinde etki açık biçimde hissedilmektedir."
+        };
+      } else if (puan < 80) {
+        return {
+          duzey: "Üst Düzey",
+          sonuc: "Maksimuma Yakın",
+          yorum: "70-80 puan aralığında sistem üst düzey bir etkilenme tespit etmiştir. Son veriler, başlangıç değerlerine kıyasla oldukça kuvvetli bir farklılık ortaya koymaktadır."
+        };
+      } else {
+        return {
+          duzey: "En Üst Düzey",
+          sonuc: "Çok Belirgin",
+          yorum: "80 ve üzeri puan, ölçümde çok belirgin bir değişim olduğunu göstermektedir. Bu sonuç sistem tarafından en güçlü etki kategorilerinden biri olarak değerlendirilmektedir."
+        };
+      }
+    }
+
+    function hesapla() {
+      const on_r = Number(document.getElementById("on_r").value);
+      const son_r = Number(document.getElementById("son_r").value);
+      const on_d = Number(document.getElementById("on_d").value);
+      const son_d = Number(document.getElementById("son_d").value);
+      const on_n = Number(document.getElementById("on_n").value);
+      const son_n = Number(document.getElementById("son_n").value);
+
+      if (
+        isNaN(on_r) || isNaN(son_r) ||
+        isNaN(on_d) || isNaN(son_d) ||
+        isNaN(on_n) || isNaN(son_n)
+      ) {
+        alert("Lütfen tüm alanları doldurun.");
+        return;
+      }
+
+      const reaksiyonDegisim = on_r - son_r;
+      const dikkatDegisim = son_d - on_d;
+      const nabizDegisim = son_n - on_n;
+
+      let puan = (reaksiyonDegisim * 0.4) + (dikkatDegisim * 0.4) + (nabizDegisim * 0.2);
+      puan = Number(puan.toFixed(2));
+
+      const yorumBilgisi = aralikYorumu(puan);
+
+      document.getElementById("puanKutusu").textContent = puan;
+      document.getElementById("duzeyKutusu").textContent = yorumBilgisi.duzey;
+      document.getElementById("sonucKutusu").textContent = yorumBilgisi.sonuc;
+      document.getElementById("yorumAlani").textContent = yorumBilgisi.yorum;
+
+      grafikCiz(on_r, son_r, on_d, son_d, on_n, son_n, reaksiyonDegisim, dikkatDegisim, nabizDegisim, puan);
+    }
+
+    function grafikCiz(on_r, son_r, on_d, son_d, on_n, son_n, reaksiyonDegisim, dikkatDegisim, nabizDegisim, puan) {
+      if (genelChart) genelChart.destroy();
+      if (degisimChart) degisimChart.destroy();
+      if (puanChart) puanChart.destroy();
+
+      const genelCtx = document.getElementById("genelGrafik").getContext("2d");
+      const degisimCtx = document.getElementById("degisimGrafik").getContext("2d");
+      const puanCtx = document.getElementById("puanGrafik").getContext("2d");
+
+      genelChart = new Chart(genelCtx, {
+        type: "bar",
+        data: {
+          labels: ["Reaksiyon", "Dikkat", "Nabız"],
+          datasets: [
+            {
+              label: "Ön Test",
+              data: [on_r, on_d, on_n],
+              backgroundColor: ["#60a5fa", "#c084fc", "#34d399"],
+              borderRadius: 10
+            },
+            {
+              label: "Son Test",
+              data: [son_r, son_d, son_n],
+              backgroundColor: ["#2563eb", "#9333ea", "#059669"],
+              borderRadius: 10
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: "top"
+            }
+          }
+        }
+      });
+
+      degisimChart = new Chart(degisimCtx, {
+        type: "radar",
+        data: {
+          labels: ["Reaksiyon İyileşmesi", "Dikkat Artışı", "Nabız Değişimi"],
+          datasets: [{
+            label: "Değişim Analizi",
+            data: [reaksiyonDegisim, dikkatDegisim, nabizDegisim],
+            fill: true,
+            backgroundColor: "rgba(124, 58, 237, 0.22)",
+            borderColor: "#7c3aed",
+            pointBackgroundColor: "#7c3aed",
+            pointRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            r: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+
+      puanChart = new Chart(puanCtx, {
+        type: "doughnut",
+        data: {
+          labels: ["Oluşan Puan", "80'e Kalan"],
+          datasets: [{
+            data: [Math.max(puan, 0), Math.max(80 - Math.max(puan, 0), 0)],
+            backgroundColor: ["#f472b6", "#e5e7eb"],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          cutout: "68%",
+          plugins: {
+            legend: {
+              position: "bottom"
+            }
+          }
+        }
+      });
+    }
+
+    function temizle() {
+      document.getElementById("on_r").value = "";
+      document.getElementById("son_r").value = "";
+      document.getElementById("on_d").value = "";
+      document.getElementById("son_d").value = "";
+      document.getElementById("on_n").value = "";
+      document.getElementById("son_n").value = "";
+
+      document.getElementById("puanKutusu").textContent = "-";
+      document.getElementById("duzeyKutusu").textContent = "-";
+      document.getElementById("sonucKutusu").textContent = "-";
+      document.getElementById("yorumAlani").textContent = "Henüz analiz yapılmadı.";
+
+      if (genelChart) genelChart.destroy();
+      if (degisimChart) degisimChart.destroy();
+      if (puanChart) puanChart.destroy();
+    }
+  </script>
+</body>
+</html>
