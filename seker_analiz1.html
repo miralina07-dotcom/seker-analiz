@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Şeker Analiz AI</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body {
+  font-family: Arial;
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  color: white;
+  text-align: center;
+  padding: 20px;
+}
+
+.container {
+  background: #1e293b;
+  padding: 25px;
+  border-radius: 20px;
+  max-width: 400px;
+  margin: auto;
+  box-shadow: 0px 0px 20px rgba(0,0,0,0.5);
+}
+
+h2 {
+  margin-bottom: 10px;
+}
+
+input {
+  width: 85%;
+  padding: 10px;
+  margin: 6px;
+  border-radius: 10px;
+  border: none;
+  font-size: 14px;
+}
+
+button {
+  padding: 12px 20px;
+  background: #22c55e;
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-size: 16px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #16a34a;
+}
+
+.result {
+  margin-top: 20px;
+  font-size: 18px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>🧠 Şeker Analiz AI</h2>
+
+<p>Verileri gir:</p>
+
+<input id="on_r" placeholder="Ön Reaksiyon (ms)">
+<input id="son_r" placeholder="Son Reaksiyon (ms)">
+
+<input id="on_d" placeholder="Ön Dikkat">
+<input id="son_d" placeholder="Son Dikkat">
+
+<input id="on_n" placeholder="Ön Nabız">
+<input id="son_n" placeholder="Son Nabız">
+
+<br>
+
+<button onclick="hesapla()">Analiz Et</button>
+
+<div class="result" id="sonuc"></div>
+
+<canvas id="grafik" height="200"></canvas>
+
+</div>
+
+<script>
+
+let chart;
+
+function hesapla() {
+
+let on_r = parseFloat(document.getElementById("on_r").value);
+let son_r = parseFloat(document.getElementById("son_r").value);
+
+let on_d = parseFloat(document.getElementById("on_d").value);
+let son_d = parseFloat(document.getElementById("son_d").value);
+
+let on_n = parseFloat(document.getElementById("on_n").value);
+let son_n = parseFloat(document.getElementById("son_n").value);
+
+if (isNaN(on_r) || isNaN(son_r) || isNaN(on_d) || isNaN(son_d) || isNaN(on_n) || isNaN(son_n)) {
+  alert("Lütfen tüm alanları doldur!");
+  return;
+}
+
+let skor = (son_r - on_r)*0.4 + (on_d - son_d)*0.4 + (son_n - on_n)*0.2;
+
+let tahmin = skor > 15 ? "Şekerli İçecek" : "Su";
+
+let yorum = skor > 15 
+? "Dikkat ve reaksiyon performansında düşüş gözlendi"
+: "Performans stabil";
+
+document.getElementById("sonuc").innerHTML =
+"AI Skor: " + skor.toFixed(2) + "<br>" +
+"Tahmin: " + tahmin + "<br>" +
+"Yorum: " + yorum;
+
+grafikCiz(on_r, son_r, on_d, son_d, on_n, son_n);
+}
+
+function grafikCiz(on_r, son_r, on_d, son_d, on_n, son_n) {
+
+let ctx = document.getElementById("grafik").getContext("2d");
+
+if (chart) {
+  chart.destroy();
+}
+
+chart = new Chart(ctx, {
+  type: "bar",
+  data: {
+    labels: ["Reaksiyon", "Dikkat", "Nabız"],
+    datasets: [
+      {
+        label: "Ön",
+        data: [on_r, on_d, on_n],
+        backgroundColor: "#3b82f6"
+      },
+      {
+        label: "Son",
+        data: [son_r, son_d, son_n],
+        backgroundColor: "#ef4444"
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: {
+        labels: {
+          color: "white"
+        }
+      }
+    },
+    scales: {
+      x: {
+        ticks: { color: "white" }
+      },
+      y: {
+        ticks: { color: "white" }
+      }
+    }
+  }
+});
+}
+
+</script>
+
+</body>
+</html>
